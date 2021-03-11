@@ -1,1 +1,1 @@
-test
+print("mah \tman \njonas")
