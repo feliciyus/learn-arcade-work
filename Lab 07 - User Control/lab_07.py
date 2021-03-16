@@ -132,6 +132,7 @@ def draw_boat(x, y):
     # Name of boat
     arcade.draw_text("KURSHIS", x - 75, y + 25, (115, 103, 122), 18)
 
+
 class Ball:
     def __init__(self, position_x, position_y, change_x, change_y, radius, color):
 
@@ -172,6 +173,7 @@ class Sun:
         self.y = y
         self.change_x = change_x
         self.change_y = change_y
+        self.sound = arcade.load_sound("Ouch__010.ogg")
 
     def draw(self):
         draw_sun(self.x, self.y)
@@ -184,15 +186,17 @@ class Sun:
         # Don't let sun get off screen
         if self.x > SCREEN_WIDTH:
             self.x = SCREEN_WIDTH
+            arcade.play_sound(self.sound)
 
         if self.x < 0:
             self.x = 0
-
+            arcade.play_sound(self.sound)
         if self.y > SCREEN_HEIGHT:
             self.y = SCREEN_HEIGHT
-
+            arcade.play_sound(self.sound)
         if self.y < 420:
             self.y = 420
+            arcade.play_sound(self.sound)
 
 
 class Boat:
@@ -210,6 +214,19 @@ class Boat:
         self.x += self.change_x
         self.y += self.change_y
 
+        if self.x > SCREEN_WIDTH - 125:
+            self.x = SCREEN_WIDTH - 125
+
+        if self.x < 125:
+            self.x = 125
+
+        if self.y > 358:
+            self.y = 358
+
+        if self.y < 200:
+            self.y = 200
+
+
 class MyGame(arcade.Window):
     """ Our Custom Window Class"""
 
@@ -219,8 +236,11 @@ class MyGame(arcade.Window):
         # Call the parent class initializer
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, "Lab 7 - User Control")
 
-        self.sun = Sun(100, 530, 0, 0)
+        self.water_sound = arcade.load_sound("Jump__006.ogg")
+        self.set_mouse_visible(False)
 
+        self.sun = Sun(100, 530, 0, 0)
+        self.boat = Boat(200, 250, 0, 0)
 
     def on_draw(self):
         """ Draws everything """
@@ -242,13 +262,12 @@ class MyGame(arcade.Window):
         draw_beach_ball(550, 45)
         draw_beach_ball(270, 130)
         draw_beach_ball(150, 70)
-        draw_boat(200, 250)
+        self.boat.draw()
         draw_beach_umbrella(600, 200)
 
-
-
-    def update(self, delta_time):
+    def update(self, delta_time, ):
         self.sun.update()
+        self.boat.update()
 
     def on_key_press(self, key, modifiers):
         """ Called whenever the user presses a key. """
@@ -267,6 +286,21 @@ class MyGame(arcade.Window):
             self.sun.change_x = 0
         elif key == arcade.key.UP or key == arcade.key.DOWN:
             self.sun.change_y = 0
+
+    def on_mouse_motion(self, x, y, dx, dy):
+        """ Called to update our objects. Happens approximately 60 times per second."""
+        self.boat.x = x
+        self.boat.y = y
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        """ Called when the user presses a mouse button. """
+
+        if button == arcade.MOUSE_BUTTON_LEFT:
+            arcade.play_sound(self.water_sound)
+            print("Left mouse button pressed at", x, y)
+        elif button == arcade.MOUSE_BUTTON_RIGHT:
+            arcade.play_sound(self.water_sound)
+            print("Right mouse button pressed at", x, y)
 
 
 def main():

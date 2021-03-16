@@ -87,6 +87,7 @@ class MyGame(arcade.Window):
         elif key == arcade.key.DOWN:
             self.ball.change_y = -MOVEMENT_SPEED
 
+
     def on_key_release(self, key, modifiers):
         """ Called whenever a user releases a key. """
         if key == arcade.key.LEFT or key == arcade.key.RIGHT:
