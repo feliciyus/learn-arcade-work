@@ -87,13 +87,22 @@ class MyGame(arcade.Window):
         self.rock_list = None
         self.star_list = None
 
-        # Player info
+        # Sounds
+        self.good_sound = arcade.load_sound("Pickup__006.ogg")
+        self.bad_sound = arcade.load_sound("Ouch__006.ogg")
+        self.game_over_sound = arcade.load_sound("Menu__008.ogg")
 
+        # Player info
         self.player_sprite = None
         self.score = 0
 
-        # Background
+        # Track the current state of what key is pressed
+        self.left_pressed = False
+        self.right_pressed = False
+        self.up_pressed = False
+        self.down_pressed = False
 
+        # Background
         arcade.set_background_color(arcade.color.AMAZON)
 
     def setup(self):
@@ -144,14 +153,34 @@ class MyGame(arcade.Window):
         # Drawing score
         output = f"Score: {self.score}"
         arcade.draw_text(output, 10, 20, arcade.color.WHITE, 14)
+        # Game over
+        game_over = "Game Over!"
+        if len(self.star_list) == 0:
+            arcade.draw_text(game_over, SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2, arcade.color.WHITE, 30)
+            # arcade.play_sound(self.game_over_sound)
 
     def update(self, delta_time):
         """ Movement and game logic """
 
+        # Calculate speed based on the keys pressed
+        self.player_sprite.change_x = 0
+        self.player_sprite.change_y = 0
+
+        if self.up_pressed and not self.down_pressed:
+            self.player_sprite.change_y = MOVEMENT_SPEED
+        elif self.down_pressed and not self.up_pressed:
+            self.player_sprite.change_y = -MOVEMENT_SPEED
+        if self.left_pressed and not self.right_pressed:
+            self.player_sprite.change_x = -MOVEMENT_SPEED
+        elif self.right_pressed and not self.left_pressed:
+            self.player_sprite.change_x = MOVEMENT_SPEED
+
         # Call update on all sprites
-        self.star_list.update()
-        self.rock_list.update()
-        self.player_list.update()
+        # If stars collected stop the game
+        if len(self.star_list) > 0:
+            self.star_list.update()
+            self.rock_list.update()
+            self.player_list.update()
 
         # Generate a list of all stars that collided with player
         star_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.star_list)
@@ -160,33 +189,41 @@ class MyGame(arcade.Window):
 
         for star in star_hit_list:
             # Killing the star
-            # star.remove_from_sprite_lists()
-            star.reset_pos()
+            star.remove_from_sprite_lists()
+            # star.reset_pos()
             self.score += 1
+            # Playing the sound
+            arcade.play_sound(self.good_sound)
 
         for rock in rock_hit_list:
             # Killing the rock
             # rock.remove_from_sprite_lists()
             rock.reset_pos()
             self.score -= 1
+            # Playing the sound
+            arcade.play_sound(self.bad_sound)
 
     def on_key_press(self, key, modifiers):
         """ Called when user presses a key """
-        if key == arcade.key.LEFT:
-            self.player_sprite.change_x = -MOVEMENT_SPEED
-        elif key == arcade.key.RIGHT:
-            self.player_sprite.change_x = MOVEMENT_SPEED
-        elif key == arcade.key.UP:
-            self.player_sprite.change_y = MOVEMENT_SPEED
+        if key == arcade.key.UP:
+            self.up_pressed = True
         elif key == arcade.key.DOWN:
-            self.player_sprite.change_y = -MOVEMENT_SPEED
+            self.down_pressed = True
+        elif key == arcade.key.LEFT:
+            self.left_pressed = True
+        elif key == arcade.key.RIGHT:
+            self.right_pressed = True
 
     def on_key_release(self, key, modifiers):
         """ Called whenever a user releases a key. """
-        if key == arcade.key.LEFT or key == arcade.key.RIGHT:
-            self.player_sprite.change_x = 0
-        elif key == arcade.key.UP or key == arcade.key.DOWN:
-            self.player_sprite.change_y = 0
+        if key == arcade.key.UP:
+            self.up_pressed = False
+        elif key == arcade.key.DOWN:
+            self.down_pressed = False
+        elif key == arcade.key.LEFT:
+            self.left_pressed = False
+        elif key == arcade.key.RIGHT:
+            self.right_pressed = False
 
 
 def main():
