@@ -14,7 +14,7 @@ SPRITE_SIZE = int(SPRITE_NATIVE_SIZE * SPRITE_SCALING_1)
 # -- Player --
 SPRITE_SCALING_PLAYER = 0.5
 # Speed
-MOVEMENT_SPEED = 5
+MOVEMENT_SPEED = 2
 UPDATES_PER_FRAME = 5
 # Facing left or right
 RIGHT_FACING = 0
@@ -31,8 +31,8 @@ SCREEN_HEIGHT = SPRITE_SIZE * 10
 
 class Room:
     def __init__(self):
-        self.wall_list = None
 
+        self.wall_list = None
         self.background = None
 
 
